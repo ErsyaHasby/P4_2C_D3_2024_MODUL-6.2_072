@@ -1,6 +1,7 @@
 import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
 import 'package:logbook_app_modul5/features/vision/vision_controller.dart';
+import 'package:logbook_app_modul5/features/vision/damage_painter.dart';
 
 class VisionView extends StatefulWidget {
   const VisionView({super.key});
@@ -86,18 +87,22 @@ class _VisionViewState extends State<VisionView> {
       return const Center(child: CircularProgressIndicator());
     }
 
-    return SizedBox.expand(
-      child: ClipRect(
-        child: FittedBox(
-          fit: BoxFit.cover,
-          child: SizedBox(
-            // Camera sensor preview is landscape-native, so width/height are swapped on portrait UI.
-            width: previewSize.height,
-            height: previewSize.width,
-            child: CameraPreview(controller),
+    return Stack(
+      fit: StackFit.expand,
+      children: [
+        ClipRect(
+          child: FittedBox(
+            fit: BoxFit.cover,
+            child: SizedBox(
+              // Camera sensor preview is landscape-native, so width/height are swapped on portrait UI.
+              width: previewSize.height,
+              height: previewSize.width,
+              child: CameraPreview(controller),
+            ),
           ),
         ),
-      ),
+        const Positioned.fill(child: CustomPaint(painter: DamagePainter())),
+      ],
     );
   }
 }
