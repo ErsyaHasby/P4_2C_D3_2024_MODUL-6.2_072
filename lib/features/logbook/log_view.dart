@@ -3,8 +3,10 @@ import 'package:logbook_app_modul5/features/logbook/log_controller.dart';
 import 'package:logbook_app_modul5/features/logbook/models/log_model.dart';
 import 'package:logbook_app_modul5/features/logbook/log_editor_page.dart';
 import 'package:logbook_app_modul5/features/onboarding/onboarding_view.dart';
+import 'package:logbook_app_modul5/features/vision/vision_view.dart';
 import 'package:logbook_app_modul5/services/connectivity_service.dart';
 import 'package:logbook_app_modul5/utils/access_policy.dart';
+import 'package:permission_handler/permission_handler.dart';
 
 /// LogView - Main Logbook Page (Modul 5: Offline-First & RBAC)
 ///
@@ -128,6 +130,38 @@ class _LogViewState extends State<LogView> {
     );
   }
 
+  Future<void> _openVisionPage() async {
+    final status = await Permission.camera.request();
+
+    if (status.isGranted) {
+      if (!mounted) {
+        return;
+      }
+      Navigator.push(
+        context,
+        MaterialPageRoute(builder: (context) => const VisionView()),
+      );
+      return;
+    }
+
+    if (!mounted) {
+      return;
+    }
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(
+          status.isPermanentlyDenied
+              ? 'Permission kamera diblok permanen. Buka Settings untuk mengaktifkan.'
+              : 'Permission kamera diperlukan untuk membuka Smart-Patrol Vision.',
+        ),
+        action: status.isPermanentlyDenied
+            ? SnackBarAction(label: 'Settings', onPressed: openAppSettings)
+            : null,
+      ),
+    );
+  }
+
   /// Delete Log dengan Confirmation Dialog - Task 3: Using AccessPolicy
   Future<void> _deleteLog(int index) async {
     final log = _controller.logs[index];
@@ -207,6 +241,12 @@ class _LogViewState extends State<LogView> {
         backgroundColor: Colors.indigo,
         foregroundColor: Colors.white,
         actions: [
+          IconButton(
+            icon: const Icon(Icons.camera_alt_outlined),
+            tooltip: 'Smart-Patrol Vision',
+            onPressed: _openVisionPage,
+          ),
+
           // Task 4: Sync Status & Manual Sync Button
           ValueListenableBuilder<SyncStatus>(
             valueListenable: _controller.syncStatusNotifier,

@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:camera/camera.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:hive_flutter/hive_flutter.dart'; // Gunakan hive_flutter, bukan hive biasa
 import 'package:logbook_app_modul5/features/logbook/models/log_model.dart';
 import 'package:logbook_app_modul5/features/onboarding/onboarding_view.dart';
+
+List<CameraDescription> appCameras = [];
 
 void main() async {
   // Wajib untuk operasi asinkron sebelum runApp
@@ -10,6 +13,10 @@ void main() async {
 
   try {
     debugPrint('📱 [STARTUP] Initializing app...');
+
+    debugPrint('📷 [STARTUP] Checking available cameras...');
+    appCameras = await availableCameras();
+    debugPrint('✅ [STARTUP] Cameras detected: ${appCameras.length}');
 
     // Load ENV - Memuat konfigurasi dari file .env
     debugPrint('🔐 [STARTUP] Loading .env file...');

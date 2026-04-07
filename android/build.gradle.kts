@@ -14,6 +14,12 @@ rootProject.layout.buildDirectory.value(newBuildDir)
 subprojects {
     val newSubprojectBuildDir: Directory = newBuildDir.dir(project.name)
     project.layout.buildDirectory.value(newSubprojectBuildDir)
+    project.plugins.withId("com.android.library") {
+        project.dependencies.add("implementation", "androidx.concurrent:concurrent-futures:1.1.0")
+    }
+    project.plugins.withId("com.android.application") {
+        project.dependencies.add("implementation", "androidx.concurrent:concurrent-futures:1.1.0")
+    }
 }
 subprojects {
     project.evaluationDependsOn(":app")

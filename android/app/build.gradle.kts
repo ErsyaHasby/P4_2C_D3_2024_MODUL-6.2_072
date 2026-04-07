@@ -40,6 +40,10 @@ android {
     }
 }
 
+dependencies {
+    implementation("androidx.concurrent:concurrent-futures:1.1.0")
+}
+
 flutter {
     source = "../.."
 }
