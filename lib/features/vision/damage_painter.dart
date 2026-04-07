@@ -1,19 +1,22 @@
+import 'dart:ui';
+
 import 'package:flutter/material.dart';
 
 class DamagePainter extends CustomPainter {
-  const DamagePainter();
+  final DetectionOverlayData detection;
+
+  const DamagePainter({required this.detection});
 
   @override
   void paint(Canvas canvas, Size size) {
-    final center = Offset(size.width / 2, size.height / 2);
-    final boxSize = size.width * 0.55;
-    final halfBox = boxSize / 2;
-
-    final boxRect = Rect.fromCenter(
-      center: center,
-      width: boxSize,
-      height: boxSize,
+    final boxRect = Rect.fromLTWH(
+      detection.x * size.width,
+      detection.y * size.height,
+      detection.width * size.width,
+      detection.height * size.height,
     );
+    final center = boxRect.center;
+    final halfBox = boxRect.width / 2;
 
     final boxPaint = Paint()
       ..color = Colors.redAccent
@@ -47,7 +50,11 @@ class DamagePainter extends CustomPainter {
     );
 
     final labelPainter = TextPainter(
-      text: TextSpan(text: ' Searching for Road Damage... ', style: labelStyle),
+      text: TextSpan(
+        text:
+            ' ${detection.label} ${(detection.confidence * 100).toStringAsFixed(0)}% ',
+        style: labelStyle,
+      ),
       textDirection: TextDirection.ltr,
     )..layout();
 
@@ -79,7 +86,7 @@ class DamagePainter extends CustomPainter {
       ..style = PaintingStyle.stroke
       ..strokeCap = StrokeCap.round;
 
-    final cornerLength = halfBox * 0.18;
+    final cornerLength = halfBox * 0.24;
 
     // Top-left corner
     canvas.drawLine(
@@ -132,6 +139,69 @@ class DamagePainter extends CustomPainter {
 
   @override
   bool shouldRepaint(covariant CustomPainter oldDelegate) {
-    return false;
+    if (oldDelegate is! DamagePainter) {
+      return true;
+    }
+    return oldDelegate.detection != detection;
   }
+}
+
+class DetectionOverlayData {
+  final double x;
+  final double y;
+  final double width;
+  final double height;
+  final String label;
+  final double confidence;
+
+  const DetectionOverlayData({
+    required this.x,
+    required this.y,
+    required this.width,
+    required this.height,
+    required this.label,
+    required this.confidence,
+  });
+
+  static DetectionOverlayData lerp(
+    DetectionOverlayData begin,
+    DetectionOverlayData end,
+    double t,
+  ) {
+    return DetectionOverlayData(
+      x: lerpDouble(begin.x, end.x, t) ?? end.x,
+      y: lerpDouble(begin.y, end.y, t) ?? end.y,
+      width: lerpDouble(begin.width, end.width, t) ?? end.width,
+      height: lerpDouble(begin.height, end.height, t) ?? end.height,
+      label: t < 0.5 ? begin.label : end.label,
+      confidence:
+          lerpDouble(begin.confidence, end.confidence, t) ?? end.confidence,
+    );
+  }
+
+  @override
+  bool operator ==(Object other) {
+    if (identical(this, other)) {
+      return true;
+    }
+
+    return other is DetectionOverlayData &&
+        other.x == x &&
+        other.y == y &&
+        other.width == width &&
+        other.height == height &&
+        other.label == label &&
+        other.confidence == confidence;
+  }
+
+  @override
+  int get hashCode => Object.hash(x, y, width, height, label, confidence);
+}
+
+class DetectionOverlayTween extends Tween<DetectionOverlayData> {
+  DetectionOverlayTween({required super.begin, required super.end});
+
+  @override
+  DetectionOverlayData lerp(double t) =>
+      DetectionOverlayData.lerp(begin!, end!, t);
 }
