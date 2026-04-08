@@ -10,6 +10,11 @@ class VisionController extends ChangeNotifier with WidgetsBindingObserver {
   bool _isInitialized = false;
   bool _isInitializing = false;
   bool _hasCameraPermission = false;
+  bool _isPermissionPermanentlyDenied = false;
+  bool _isOverlayEnabled = true;
+  bool _isTorchOn = false;
+  bool _isTorchAvailable = false;
+  ResolutionPreset _resolutionPreset = ResolutionPreset.medium;
   String? _errorMessage;
   bool _isDisposed = false;
   Timer? _mockTimer;
@@ -31,6 +36,11 @@ class VisionController extends ChangeNotifier with WidgetsBindingObserver {
   bool get isInitialized => _isInitialized;
   bool get isInitializing => _isInitializing;
   bool get hasCameraPermission => _hasCameraPermission;
+  bool get isPermissionPermanentlyDenied => _isPermissionPermanentlyDenied;
+  bool get isOverlayEnabled => _isOverlayEnabled;
+  bool get isTorchOn => _isTorchOn;
+  bool get isTorchAvailable => _isTorchAvailable;
+  ResolutionPreset get resolutionPreset => _resolutionPreset;
   String? get errorMessage => _errorMessage;
 
   VisionController() {
@@ -52,11 +62,15 @@ class VisionController extends ChangeNotifier with WidgetsBindingObserver {
       if (!permissionStatus.isGranted) {
         _hasCameraPermission = false;
         _isInitialized = false;
-        _errorMessage = 'Izin kamera belum diberikan.';
+        _isPermissionPermanentlyDenied = permissionStatus.isPermanentlyDenied;
+        _errorMessage = _isPermissionPermanentlyDenied
+            ? 'No Camera Access: akses kamera diblok permanen.'
+            : 'No Camera Access: izin kamera belum diberikan.';
         return;
       }
 
       _hasCameraPermission = true;
+      _isPermissionPermanentlyDenied = false;
 
       final cameras = await availableCameras();
       if (cameras.isEmpty) {
@@ -74,7 +88,7 @@ class VisionController extends ChangeNotifier with WidgetsBindingObserver {
 
       final controller = CameraController(
         selectedCamera,
-        ResolutionPreset.medium,
+        _resolutionPreset,
         enableAudio: false,
       );
 
@@ -88,6 +102,7 @@ class VisionController extends ChangeNotifier with WidgetsBindingObserver {
 
       _isInitialized = true;
       _errorMessage = null;
+      _syncTorchAvailability();
       _startMockDetection();
     } on CameraException catch (e) {
       _isInitialized = false;
@@ -109,6 +124,8 @@ class VisionController extends ChangeNotifier with WidgetsBindingObserver {
     final controller = _cameraController;
     _cameraController = null;
     _isInitialized = false;
+    _isTorchOn = false;
+    _isTorchAvailable = false;
 
     if (controller != null) {
       if (controller.value.isStreamingImages) {
@@ -173,13 +190,61 @@ class VisionController extends ChangeNotifier with WidgetsBindingObserver {
     final y = _random.nextDouble() * maxY;
     final confidence = 0.75 + (_random.nextDouble() * 0.24);
 
+    final mockLabels = <String>['D40 Pothole', 'D00 Longitudinal Crack'];
+    final label = mockLabels[_random.nextInt(mockLabels.length)];
+
     detectionNotifier.value = DetectionOverlayData(
       x: x,
       y: y,
       width: width,
       height: height,
-      label: 'D40 Pothole',
+      label: label,
       confidence: confidence,
     );
+  }
+
+  Future<void> setResolutionPreset(ResolutionPreset preset) async {
+    if (_resolutionPreset == preset) {
+      return;
+    }
+
+    _resolutionPreset = preset;
+    notifyListeners();
+
+    await initCamera();
+  }
+
+  void toggleOverlay() {
+    _isOverlayEnabled = !_isOverlayEnabled;
+    notifyListeners();
+  }
+
+  Future<void> toggleTorch() async {
+    final controller = _cameraController;
+    if (controller == null || !_isInitialized) {
+      return;
+    }
+
+    try {
+      if (_isTorchOn) {
+        await controller.setFlashMode(FlashMode.off);
+        _isTorchOn = false;
+      } else {
+        await controller.setFlashMode(FlashMode.torch);
+        _isTorchOn = true;
+      }
+    } on CameraException {
+      _errorMessage = 'Torch tidak tersedia pada perangkat ini.';
+      _isTorchAvailable = false;
+    }
+
+    notifyListeners();
+  }
+
+  void _syncTorchAvailability() {
+    // CameraDescription.hasFlash is not available on all plugin versions.
+    // Assume available and fallback to error handling in toggleTorch if unsupported.
+    _isTorchAvailable = true;
+    _isTorchOn = false;
   }
 }

@@ -17,9 +17,12 @@ class DamagePainter extends CustomPainter {
     );
     final center = boxRect.center;
     final halfBox = boxRect.width / 2;
+    final severityColor = detection.isHeavyDamage
+        ? const Color(0xFFE53935)
+        : const Color(0xFFFDD835);
 
     final boxPaint = Paint()
-      ..color = Colors.redAccent
+      ..color = severityColor
       ..strokeWidth = 3
       ..style = PaintingStyle.stroke;
 
@@ -42,11 +45,13 @@ class DamagePainter extends CustomPainter {
       crosshairPaint,
     );
 
-    final labelStyle = const TextStyle(
+    final labelStyle = TextStyle(
       color: Colors.white,
       fontSize: 13,
       fontWeight: FontWeight.w700,
-      backgroundColor: Colors.black87,
+      shadows: const [
+        Shadow(color: Colors.black, blurRadius: 7, offset: Offset(0, 1)),
+      ],
     );
 
     final labelPainter = TextPainter(
@@ -78,10 +83,25 @@ class DamagePainter extends CustomPainter {
       Paint()..color = Colors.black54,
     );
 
+    final strokePainter = TextPainter(
+      text: TextSpan(
+        text:
+            ' ${detection.label} ${(detection.confidence * 100).toStringAsFixed(0)}% ',
+        style: labelStyle.copyWith(
+          foreground: Paint()
+            ..style = PaintingStyle.stroke
+            ..strokeWidth = 2.2
+            ..color = Colors.black,
+        ),
+      ),
+      textDirection: TextDirection.ltr,
+    )..layout();
+
+    strokePainter.paint(canvas, Offset(labelX, labelY));
     labelPainter.paint(canvas, Offset(labelX, labelY));
 
     final cornerPaint = Paint()
-      ..color = Colors.redAccent
+      ..color = severityColor
       ..strokeWidth = 4
       ..style = PaintingStyle.stroke
       ..strokeCap = StrokeCap.round;
@@ -162,6 +182,9 @@ class DetectionOverlayData {
     required this.label,
     required this.confidence,
   });
+
+  bool get isHeavyDamage =>
+      label.contains('D40') || label.toLowerCase().contains('pothole');
 
   static DetectionOverlayData lerp(
     DetectionOverlayData begin,
