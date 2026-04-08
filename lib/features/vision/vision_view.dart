@@ -180,7 +180,9 @@ class _VisionViewState extends State<VisionView> {
                     icon: _visionController.isTorchOn
                         ? Icons.flash_on
                         : Icons.flash_off,
-                    label: _visionController.isTorchOn ? 'Torch ON' : 'Torch OFF',
+                    label: _visionController.isTorchOn
+                        ? 'Torch ON'
+                        : 'Torch OFF',
                     accent: _visionController.isTorchOn
                         ? const Color(0xFFFFCA28)
                         : Colors.white70,
@@ -288,7 +290,9 @@ class _VisionViewState extends State<VisionView> {
         decoration: BoxDecoration(
           color: enabled ? Colors.white10 : Colors.white12,
           borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: enabled ? accent.withValues(alpha: 0.7) : Colors.white24),
+          border: Border.all(
+            color: enabled ? accent.withValues(alpha: 0.7) : Colors.white24,
+          ),
         ),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
