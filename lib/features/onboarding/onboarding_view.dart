@@ -31,11 +31,11 @@ class _OnboardingViewState extends State<OnboardingView> {
   String _getStepTitle() {
     switch (step) {
       case 1:
-        return "Selamat Datang! 👋";
+        return "Selamat Datang";
       case 2:
-        return "Kelola Counter Cerdas 📊";
+        return "Kelola Counter Cerdas";
       case 3:
-        return "Siap Memulai Perjalanan? 🚀";
+        return "Siap Memulai Perjalanan";
       default:
         return "";
     }

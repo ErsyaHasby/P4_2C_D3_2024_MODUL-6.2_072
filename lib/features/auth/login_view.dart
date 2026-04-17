@@ -46,7 +46,7 @@ class _LoginViewState extends State<LoginView> {
     if (user.isEmpty || pass.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-          content: Text("⚠️ Username dan Password tidak boleh kosong!"),
+          content: Text("Username dan Password tidak boleh kosong!"),
           backgroundColor: Colors.orange,
           duration: Duration(seconds: 2),
         ),
@@ -86,7 +86,7 @@ class _LoginViewState extends State<LoginView> {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
             content: Text(
-              "🔒 Terlalu banyak percobaan gagal! Tombol login dinonaktifkan selama 10 detik.",
+              "Terlalu banyak percobaan gagal! Tombol login dinonaktifkan selama 10 detik.",
             ),
             backgroundColor: Colors.red,
             duration: Duration(seconds: 4),
@@ -97,7 +97,7 @@ class _LoginViewState extends State<LoginView> {
         int remainingAttempts = 3 - _loginAttempts;
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text("❌ Login Gagal! Sisa percobaan: $remainingAttempts"),
+            content: Text("Login Gagal! Sisa percobaan: $remainingAttempts"),
             backgroundColor: Colors.red,
             duration: const Duration(seconds: 2),
           ),
@@ -133,7 +133,7 @@ class _LoginViewState extends State<LoginView> {
 
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-          content: Text("✅ Tombol login sudah aktif kembali!"),
+          content: Text("Tombol login sudah aktif kembali!"),
           backgroundColor: Colors.green,
           duration: Duration(seconds: 2),
         ),

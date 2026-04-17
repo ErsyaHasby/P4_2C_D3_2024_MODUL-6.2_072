@@ -1,9 +1,11 @@
 import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
 import 'package:logbook_app_modul5/features/vision/damage_painter.dart';
+import 'package:logbook_app_modul5/features/vision/image_processor.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'dart:async';
 import 'dart:math';
+import 'dart:typed_data';
 
 class VisionController extends ChangeNotifier with WidgetsBindingObserver {
   CameraController? _cameraController;
@@ -15,10 +17,17 @@ class VisionController extends ChangeNotifier with WidgetsBindingObserver {
   bool _isTorchOn = false;
   bool _isTorchAvailable = false;
   ResolutionPreset _resolutionPreset = ResolutionPreset.medium;
+  ImageFilter _selectedFilter = ImageFilter.normal;
+  double _brightnessValue =
+      1.0; // 1.0 = normal, 0.5 = 50% darker, 1.5 = 50% brighter
   String? _errorMessage;
   bool _isDisposed = false;
   Timer? _mockTimer;
   final Random _random = Random();
+
+  // Capture state
+  Uint8List? _capturedImageData;
+  bool _isCapturing = false;
 
   final ValueNotifier<DetectionOverlayData> detectionNotifier =
       ValueNotifier<DetectionOverlayData>(
@@ -41,7 +50,11 @@ class VisionController extends ChangeNotifier with WidgetsBindingObserver {
   bool get isTorchOn => _isTorchOn;
   bool get isTorchAvailable => _isTorchAvailable;
   ResolutionPreset get resolutionPreset => _resolutionPreset;
+  ImageFilter get selectedFilter => _selectedFilter;
+  double get brightnessValue => _brightnessValue;
   String? get errorMessage => _errorMessage;
+  Uint8List? get capturedImageData => _capturedImageData;
+  bool get isCapturing => _isCapturing;
 
   VisionController() {
     WidgetsBinding.instance.addObserver(this);
@@ -238,6 +251,50 @@ class VisionController extends ChangeNotifier with WidgetsBindingObserver {
       _isTorchAvailable = false;
     }
 
+    notifyListeners();
+  }
+
+  void setImageFilter(ImageFilter filter) {
+    _selectedFilter = filter;
+    notifyListeners();
+  }
+
+  void setBrightnessValue(double value) {
+    _brightnessValue = value.clamp(0.3, 2.0);
+    notifyListeners();
+  }
+
+  Future<void> capturePhoto() async {
+    final controller = _cameraController;
+    if (controller == null || !_isInitialized || _isCapturing) {
+      return;
+    }
+
+    try {
+      _isCapturing = true;
+      notifyListeners();
+
+      final xFile = await controller.takePicture();
+      final imageData = await xFile.readAsBytes();
+
+      _capturedImageData = ImageProcessor.applyFilterToBytes(
+        imageData,
+        _selectedFilter,
+        brightnessValue: _brightnessValue,
+      );
+
+      notifyListeners();
+    } catch (e) {
+      _errorMessage = 'Gagal mengambil foto: $e';
+      notifyListeners();
+    } finally {
+      _isCapturing = false;
+      notifyListeners();
+    }
+  }
+
+  void clearCapturedImage() {
+    _capturedImageData = null;
     notifyListeners();
   }
 

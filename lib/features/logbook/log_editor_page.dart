@@ -58,7 +58,7 @@ class _LogEditorPageState extends State<LogEditorPage> {
     if (_titleController.text.trim().isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-          content: Text('❌ Judul tidak boleh kosong!'),
+          content: Text('Judul tidak boleh kosong!'),
           backgroundColor: Colors.red,
         ),
       );
@@ -93,7 +93,7 @@ class _LogEditorPageState extends State<LogEditorPage> {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
-            content: Text('✅ Data tersimpan!'),
+            content: Text('Data tersimpan!'),
             backgroundColor: Colors.green,
             duration: Duration(seconds: 2),
           ),
@@ -104,7 +104,7 @@ class _LogEditorPageState extends State<LogEditorPage> {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('❌ Gagal menyimpan: $e'),
+            content: Text('Gagal menyimpan: $e'),
             backgroundColor: Colors.red,
           ),
         );
@@ -130,9 +130,7 @@ class _LogEditorPageState extends State<LogEditorPage> {
       length: 2,
       child: Scaffold(
         appBar: AppBar(
-          title: Text(
-            widget.log == null ? "✍️ Catatan Baru" : "📝 Edit Catatan",
-          ),
+          title: Text(widget.log == null ? "Catatan Baru" : "Edit Catatan"),
           backgroundColor: Colors.indigo,
           foregroundColor: Colors.white,
           bottom: const TabBar(

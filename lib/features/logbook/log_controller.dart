@@ -495,7 +495,7 @@ class LogController {
           successCount++;
 
           await LogHelper.writeLog(
-            "SYNC MANAGER: ✅ '${unsyncedLog.title}' synced (ID: $insertedId)",
+            "SYNC MANAGER: '${unsyncedLog.title}' synced (ID: $insertedId)",
             source: "log_controller.dart",
             level: 2,
           );
@@ -503,7 +503,7 @@ class LogController {
       } catch (e) {
         failCount++;
         await LogHelper.writeLog(
-          "SYNC MANAGER: ❌ '${unsyncedLog.title}' failed - $e",
+          "SYNC MANAGER: '${unsyncedLog.title}' failed - $e",
           source: "log_controller.dart",
           level: 1,
         );

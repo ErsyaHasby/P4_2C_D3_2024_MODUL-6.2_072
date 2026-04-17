@@ -183,7 +183,6 @@ class _VisionViewState extends State<VisionView> {
                   child: Image.memory(
                     _visionController.capturedImageData!,
                     fit: BoxFit.contain,
-                    filterQuality: FilterQuality.high,
                   ),
                 ),
               ),

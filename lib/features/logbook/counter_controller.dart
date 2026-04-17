@@ -50,7 +50,7 @@ class CounterController {
   Future<void> saveLastValue(String username) async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setInt(_getCounterKey(username), _counter);
-    print('💾 Counter saved for $username: $_counter'); // Debug log
+    print('Counter saved for $username: $_counter'); // Debug log
   }
 
   // TASK 3 & HOMEWORK: Fungsi untuk load counter value (per-user)
@@ -60,7 +60,7 @@ class CounterController {
     _counter =
         prefs.getInt(_getCounterKey(username)) ??
         0; // Default: 0 jika belum ada
-    print('📂 Counter loaded for $username: $_counter'); // Debug log
+    print('Counter loaded for $username: $_counter'); // Debug log
   }
 
   // TASK 3 & HOMEWORK: Fungsi untuk menyimpan history (per-user)
@@ -73,9 +73,7 @@ class CounterController {
     }).toList();
 
     await prefs.setStringList(_getHistoryKey(username), historyJson);
-    print(
-      '💾 History saved for $username: ${_history.length} items',
-    ); // Debug log
+    print('History saved for $username: ${_history.length} items'); // Debug log
   }
 
   // TASK 3 & HOMEWORK: Fungsi untuk load history (per-user)
@@ -91,11 +89,11 @@ class CounterController {
       }).toList();
 
       print(
-        '📂 History loaded for $username: ${_history.length} items',
+        'History loaded for $username: ${_history.length} items',
       ); // Debug log
     } else {
       _history = []; // Jika belum ada data, list kosong
-      print('📂 No history found for $username, starting fresh'); // Debug log
+      print('No history found for $username, starting fresh'); // Debug log
     }
   }
 
@@ -113,7 +111,7 @@ class CounterController {
     await prefs.remove(_getHistoryKey(username));
     _counter = 0;
     _history = [];
-    print('🗑️ All data cleared for $username'); // Debug log
+    print('All data cleared for $username'); // Debug log
   }
 
   void setStep(int newStep) {
